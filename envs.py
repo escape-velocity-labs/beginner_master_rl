@@ -65,7 +65,7 @@ class Maze(gym.Env):
         self.distances = self._compute_distances(self.goal, self.maze)
         self.action_space = spaces.Discrete(n=4)
         self.action_space.action_meanings = {0: 'UP', 1: 'RIGHT', 2: 'DOWN', 3: "LEFT"}
-        self.observation_space = spaces.MultiDiscrete(nvec=[size, size])
+        self.observation_space = spaces.MultiDiscrete([size, size])
 
         self.viewer = None
         self.agent_transform = None
