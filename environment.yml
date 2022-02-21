@@ -14,4 +14,4 @@ dependencies:
   - scikit-learn
   - pip
   - pip:
-    - gym
+    - gym==0.21
