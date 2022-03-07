@@ -15,3 +15,4 @@ dependencies:
   - pip
   - pip:
     - gym==0.21
+    - pyglet
