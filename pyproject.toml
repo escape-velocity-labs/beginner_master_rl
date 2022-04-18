@@ -2,7 +2,7 @@
 name = "beginner_master_rl"
 version = "0.1.0"
 description = ""
-authors = ["r-matsuzaka <matsuzakaryo@gmail.com>"]
+authors = ["r-matsuzaka"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
