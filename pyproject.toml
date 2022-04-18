@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "beginner_master_rl"
+version = "0.1.0"
+description = ""
+authors = ["r-matsuzaka <matsuzakaryo@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+gym = "0.21"
+pyglet = "^1.5.23"
+PyOpenGL = "^3.1.6"
+torch = "^1.11.0"
+matplotlib = "^3.5.1"
+pandas = "^1.4.2"
+numpy = "^1.22.3"
+tqdm = "^4.64.0"
+jupyterlab = "^3.3.4"
+scikit-learn = "^1.0.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
