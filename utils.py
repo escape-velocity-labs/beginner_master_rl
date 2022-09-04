@@ -220,7 +220,7 @@ def seed_everything(env: gym.Env, seed: int = 42) -> None:
     env.observation_space.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch._set_deterministic(True)
+    # torch._set_deterministic(True)
 
 
 def test_policy_network(env, policy, episodes=1):
