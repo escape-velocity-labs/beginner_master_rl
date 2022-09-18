@@ -14,5 +14,5 @@ dependencies:
   - scikit-learn
   - pip
   - pip:
-    - gym==0.21
-    - pyglet
+    - gym==0.24
+    - pygame==2.1.2

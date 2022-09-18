@@ -6,10 +6,14 @@ Maze environment used in the first three modules of the course:
 
 from typing import Tuple, Dict, Optional, Iterable
 
+import numpy as np
 
 import gym
 from gym import spaces
-import numpy as np
+from gym.error import DependencyNotInstalled
+
+import pygame
+from pygame import gfxdraw
 
 
 class Maze(gym.Env):
@@ -67,7 +71,7 @@ class Maze(gym.Env):
         self.action_space.action_meanings = {0: 'UP', 1: 'RIGHT', 2: 'DOWN', 3: "LEFT"}
         self.observation_space = spaces.MultiDiscrete([size, size])
 
-        self.viewer = None
+        self.screen = None
         self.agent_transform = None
 
     def step(self, action: int) -> Tuple[Tuple[int, int], float, bool, Dict]:
@@ -104,9 +108,8 @@ class Maze(gym.Env):
         Render a state of the environment.
 
         Args:
-            mode: one of 'human' or 'rgb_array'. The first uses pyglet to create a
-            window in which to display the frames. The second returns the frame
-            as a (H x W x C) for usage with other visualization libraries.
+            mode: one of 'human' or 'rgb_array'. Human added only for compatibility.
+            All rendering will be done in 'rgb arrays' via NumPy.
 
         Returns:
             A numpy.ndarray or None.
@@ -117,58 +120,46 @@ class Maze(gym.Env):
         screen_size = 600
         scale = screen_size / 5
 
-        if self.viewer is None:
-            from gym.envs.classic_control import rendering
-            # First time the environment is rendered.
-            self.viewer = rendering.Viewer(screen_size, screen_size)
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.Surface((screen_size, screen_size))
 
-            # Add the background to the viewer.
-            left, right, top, bottom = 0, screen_size, screen_size, 0
-            background = rendering.make_polygon([(left, bottom), (left, top),
-                                                 (right, top), (right, bottom)], filled=True)
-            background.set_color(.0862, .1411, .2784)
-            self.viewer.add_geom(background)
+        surf = pygame.Surface((screen_size, screen_size))
+        surf.fill((22, 36, 71))
 
-            for row in range(5):
-                for col in range(5):
 
-                    state = (row, col)
-                    for next_state in [(row + 1, col), (row - 1, col),
-                                       (row, col + 1), (row, col - 1)]:
-                        if next_state not in self.maze[state]:
-                            # Add the geometry of the edges and walls (i.e. the boundaries between
-                            # adjacent squares that are not connected).
-                            row_diff, col_diff = np.subtract(next_state, state)
-                            left = (col + (col_diff > 0)) * scale - 2 * (col_diff != 0)
-                            right = ((col + 1) - (col_diff < 0)) * scale + 2 * (col_diff != 0)
-                            top = (5 - (row + (row_diff > 0))) * scale - 2 * (row_diff != 0)
-                            bottom = (5 - ((row + 1) - (row_diff < 0))) * scale + 2 * (row_diff != 0)
-                            wall = rendering.make_polygon(
-                                [(left, bottom), (left, top), (right, top), (right, bottom)],
-                                filled=True)
-                            wall.set_color(1., 1., 1.)
-                            self.viewer.add_geom(wall)
+        for row in range(5):
+            for col in range(5):
 
-            # Add the geometry of the goal square to the viewer.
-            left, right, top, bottom = scale * 4 + 10, scale * 5 - 10, scale - 10, 10
-            goal = rendering.make_polygon([(left, bottom), (left, top),
-                                           (right, top), (right, bottom)], filled=True)
-            goal.set_color(.1607, .7803, .6745)
+                state = (row, col)
+                for next_state in [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]:
+                    if next_state not in self.maze[state]:
 
-            # Add the geometry of the agent to the viewer.
-            agent = rendering.make_circle(radius=scale * .6 / 2, res=100, filled=True)
-            self.agent_transform = rendering.Transform()
-            agent.add_attr(self.agent_transform)
-            agent.set_color(.894, .247, .3529)
-            self.viewer.add_geom(agent)
+                        # Add the geometry of the edges and walls (i.e. the boundaries between
+                        # adjacent squares that are not connected).
+                        row_diff, col_diff = np.subtract(next_state, state)
+                        left = (col + (col_diff > 0)) * scale - 2 * (col_diff != 0)
+                        right = ((col + 1) - (col_diff < 0)) * scale + 2 * (col_diff != 0)
+                        top = (5 - (row + (row_diff > 0))) * scale - 2 * (row_diff != 0)
+                        bottom = (5 - ((row + 1) - (row_diff < 0))) * scale + 2 * (row_diff != 0)
 
-            self.viewer.add_geom(goal)
+                        gfxdraw.filled_polygon(surf, [(left, bottom), (left, top), (right, top), (right, bottom)], (255, 255, 255))
 
-        # Update the agent's position in the maze.
-        agent_col = scale * (self.state[1] + .5)
-        agent_row = screen_size - scale * (self.state[0] + .5)
-        self.agent_transform.set_translation(agent_col, agent_row)
-        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
+        # Add the geometry of the goal square to the viewer.
+        left, right, top, bottom = scale * 4 + 10, scale * 5 - 10, scale - 10, 10
+        gfxdraw.filled_polygon(surf, [(left, bottom), (left, top), (right, top), (right, bottom)], (40, 199, 172))
+
+        # Add the geometry of the agent to the viewer.
+        agent_row = int(screen_size - scale * (self.state[0] + .5))
+        agent_col = int(scale * (self.state[1] + .5))
+        gfxdraw.filled_circle(surf, agent_col, agent_row, int(scale * .6 / 2), (228, 63, 90))
+
+        surf = pygame.transform.flip(surf, False, True)
+        self.screen.blit(surf, (0, 0))
+
+        return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
 
     def close(self) -> None:
         """
@@ -176,9 +167,10 @@ class Maze(gym.Env):
 
         Returns: None.
         """
-        if self.viewer:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            pygame.display.quit()
+            pygame.quit()
+            self.screen = None
 
     def compute_reward(self, state: Tuple[int, int], action: int) -> float:
         """
@@ -307,3 +299,7 @@ class Maze(gym.Env):
             for neighbour in maze[closest]:
                 distances[neighbour] = min(distances[neighbour], distances[closest] + 1)
         return distances
+
+env = Maze()
+env.reset()
+env.render(mode='rgb_array')
