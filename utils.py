@@ -20,9 +20,9 @@ def plot_policy(probs_or_qvals, frame, action_meanings=None):
         action_meanings = {0: 'U', 1: 'R', 2: 'D', 3: 'L'}
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
     max_prob_actions = probs_or_qvals.argmax(axis=-1)
-    probs_copy = max_prob_actions.copy().astype(np.object)
+    probs_copy = np.zeros_like(max_prob_actions, dtype='str')
     for key in action_meanings:
-        probs_copy[probs_copy == key] = action_meanings[key]
+        probs_copy[max_prob_actions == key] = action_meanings[key]
     sns.heatmap(max_prob_actions, annot=probs_copy, fmt='', cbar=False, cmap='coolwarm',
                 annot_kws={'weight': 'bold', 'size': 12}, linewidths=2, ax=axes[0])
     axes[1].imshow(frame)
