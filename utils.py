@@ -18,9 +18,9 @@ import numpy as np
 def plot_policy(probs_or_qvals, frame, action_meanings=None):
     if action_meanings is None:
         action_meanings = {0: 'U', 1: 'R', 2: 'D', 3: 'L'}
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    _, axes = plt.subplots(1, 2, figsize=(12, 6))
     max_prob_actions = probs_or_qvals.argmax(axis=-1)
-    probs_copy = max_prob_actions.copy().astype(np.object)
+    probs_copy = max_prob_actions.copy().astype(object)
     for key in action_meanings:
         probs_copy[probs_copy == key] = action_meanings[key]
     sns.heatmap(max_prob_actions, annot=probs_copy, fmt='', cbar=False, cmap='coolwarm',
@@ -33,7 +33,7 @@ def plot_policy(probs_or_qvals, frame, action_meanings=None):
 
 
 def plot_values(state_values, frame):
-    f, axes = plt.subplots(1, 2, figsize=(12, 5))
+    _, axes = plt.subplots(1, 2, figsize=(12, 5))
     sns.heatmap(state_values, annot=True, fmt=".2f", cmap='coolwarm',
                 annot_kws={'weight': 'bold', 'size': 12}, linewidths=2, ax=axes[0])
     axes[1].imshow(frame)
@@ -105,7 +105,7 @@ def quatromatrix(action_values, ax=None, triplotkw=None, tripcolorkw=None):
 
 def test_agent(env: gym.Env, policy: Callable, episodes: int = 10) -> None:
     plt.figure(figsize=(8, 8))
-    for episode in range(episodes):
+    for _ in range(episodes):
         state = env.reset()
         done = False
         img = plt.imshow(env.render(mode='rgb_array'))
@@ -191,7 +191,7 @@ def plot_stats(stats):
     rows = len(stats)
     cols = 1
 
-    fig, ax = plt.subplots(rows, cols, figsize=(12, 6))
+    _, ax = plt.subplots(rows, cols, figsize=(12, 6))
 
     for i, key in enumerate(stats):
         vals = stats[key]
@@ -226,7 +226,7 @@ def seed_everything(env: gym.Env, seed: int = 42) -> None:
 def test_policy_network(env, policy, episodes=1):
     from IPython import display
     plt.figure(figsize=(6, 6))
-    for episode in range(episodes):
+    for _ in range(episodes):
         state = env.reset()
         done = False
         img = plt.imshow(env.render(mode='rgb_array'))
